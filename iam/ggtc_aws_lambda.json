@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Action": [
+        "sns:Publish",
+        "sns:ListTopics"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    },
+    {
+      "Action": [
+        "rekognition:DetectLabels",
+        "rekognition:RecognizeCelebrities",
+        "rekognition:DetectFaces"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
