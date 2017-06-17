@@ -1,7 +1,6 @@
-import collections
 from datetime import datetime
-import logging
 import json
+import logging
 import os
 
 import boto3
@@ -36,10 +35,10 @@ def get_faces_info(s3_object):
         Image=s3_object,
         Attributes=['ALL']
     )
+    logger.info("Running detect face Rekognition...")
     for response in responses['FaceDetails']:
         for type in response:
             value = response[type]
-            logger.info("Faces {0}: {1}".format(type, value))
             email += "{0}: {1}\n".format(type, value)
 
     return email
@@ -55,9 +54,9 @@ def get_label_confidence(s3_object):
     responses = rek_client.detect_labels(
         Image=s3_object
     )
+    logger.info("Running detect label Rekognition...")
     for response in responses['Labels']:
         email += "{0}: {1}%\n".format(response['Name'], round(response['Confidence'], 2))
-        logger.info("Label {0}: {1}".format(response['Name'], response['Confidence']))
 
     return email
 
@@ -70,6 +69,9 @@ def lambda_handler(event, context):
     :param context:
     :return:
     """
+    # print the event and context info
+    logger.info(json.dumps(event))
+    logger.info(vars(context))
 
     # gather the info we need
     upload_event = event['Records'][0]
@@ -78,7 +80,7 @@ def lambda_handler(event, context):
     key = upload_event['s3']['object']['key']
     s3_upload_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(region, bucket, key)
     s3_object = {
-        's3_object': {
+        'S3Object': {
             'Bucket': bucket,
             'Name': key
         }
@@ -99,6 +101,7 @@ def lambda_handler(event, context):
     message_json = json.dumps(message)
 
     # send message
+    logger.info("Sending notifications")
     sns_client.publish(
         TopicArn=topic_arn,
         Message=message_json,
